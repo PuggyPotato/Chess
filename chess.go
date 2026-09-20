@@ -1,8 +1,27 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
 
-type PieceType int
+)
+
+type Board struct {
+	Square [8][8]*Piece
+}
+
+type Piece struct {
+	Type PieceType
+	Color Color
+}
+
+type Color int 
+
+const (
+	White Color = iota
+	Black
+)
+
+type PieceType int 
 
 const (
 	Pawn PieceType = iota
@@ -13,22 +32,44 @@ const (
 	King
 )
 
-type Color int
+func (p *Piece) String() string {
 
-const (
-	White Color = iota
-	Black
-)
+	switch p.Color {
+		case 0:
+			symbols := [...]string{"♙", "♘", "♗", "♖", "♕", "♔"}
+			return symbols[p.Type]
 
-type Piece struct {
-	Type  PieceType
-	Color Color
+		case 1:
+			symbols := [...]string{"♟", "♞", "♝", "♜", "♛", "♚"}
+			return symbols[p.Type]
+		
+		default:
+			return " "
+	}
+
 }
 
-type Board struct {
-	Squares [8][8]*Piece
-}
 
 func main() {
-	
+	board := Board{
+		[8][8]*Piece{ 
+			0: {&Piece{Rook, Black}, &Piece{Knight, Black}, &Piece{Bishop, Black}, &Piece{Queen, Black}, &Piece{King, Black}, &Piece{Bishop, Black}, &Piece{Knight, Black}, &Piece{Rook, Black}},
+			1: {&Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}},
+			6: {&Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}},
+			7: {&Piece{Rook, White}, &Piece{Knight, White}, &Piece{Bishop, White}, &Piece{Queen, White}, &Piece{King, White}, &Piece{Bishop, White}, &Piece{Knight, White}, &Piece{Rook, White}},
+		},
+	}
+
+
+	for _,row := range board.Square {
+		for _,col := range row {
+			if col != nil {
+				fmt.Print(col.String())
+			} else {
+				fmt.Print(".")
+			}
+			fmt.Print(" ") 
+		}
+		fmt.Println()
+	}
 }
