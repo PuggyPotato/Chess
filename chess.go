@@ -114,6 +114,46 @@ func (b *Board) KnightMove(from Position, to Position, color Color) {
 	b.Square[to.Y][to.X] = &Piece{Type: Knight, Color: Color(color)}
 }
 
+//Todo: Add Castle mechanism
+func (b *Board) KingMove(from Position, to Position, color Color) {
+	//Valid King Moves
+	possiblePositions := [8]Position{
+						{X: from.X + 1, Y: from.Y + 1},
+						{X: from.X + 1, Y: from.Y},
+						{X: from.X + 1, Y: from.Y - 1},
+
+						{X: from.X, Y: from.Y + 1},
+						{X: from.X, Y: from.Y - 1},
+
+						{X: from.X -1, Y: from.Y + 1},
+						{X: from.X -1, Y: from.Y - 1},
+						{X: from.X -1, Y: from.Y},
+					}	
+
+	valid := make(map[Position]struct{})
+
+	for _, position := range possiblePositions {
+		if isOnBoard(position.X, position.Y) {
+			if b.Square[position.Y][position.X] == nil || b.Square[position.Y][position.X].Color != Color(color) {
+				valid[position] = struct{}{}
+			}
+		}
+	}
+
+	if !isOnBoard(to.X, to.Y) {
+		log.Printf("Error: coord not on board, %v", to) // Log print for now, will change to return fmt.Error later
+	}
+
+	if _, ok := valid[to]; !ok {
+		log.Print("Invalid Move")
+		log.Print(valid)
+		return
+	}
+
+	b.Square[from.Y][from.X] = nil
+	b.Square[to.Y][to.X] = &Piece{Type: King, Color: Color(color)}
+}
+
 var mapToXCoord = map[string]int{
 	"a": 0,
 	"b": 1,
@@ -170,6 +210,8 @@ func main() {
 		switch piece.Type {
 			case 1: // Knight
 				board.KnightMove(from, to, piece.Color)
+			case 5: // King
+				board.KingMove(from, to, piece.Color)
 		}
 
 		PrintBoard(board)
