@@ -155,96 +155,14 @@ func (b *Board) KingMove(from Position, to Position, color Color) {
 }
 
 func (b *Board) RookMove(from Position, to Position, color Color) {
-	possibleXUp := [8]Position{
-						{X: from.X + 1, Y: from.Y},
-						{X: from.X + 2, Y: from.Y},
-						{X: from.X + 3, Y: from.Y},
-						{X: from.X + 4, Y: from.Y},
-						{X: from.X + 5, Y: from.Y},
-						{X: from.X + 6, Y: from.Y},
-						{X: from.X + 7, Y: from.Y},
-					}	
-	possibleXDown := [8]Position{
-						{X: from.X - 1, Y: from.Y},
-						{X: from.X - 2, Y: from.Y},
-						{X: from.X - 3, Y: from.Y},
-						{X: from.X - 4, Y: from.Y},
-						{X: from.X - 5, Y: from.Y},
-						{X: from.X - 6, Y: from.Y},
-						{X: from.X - 7, Y: from.Y},
-					}	
-
-	possibleYUp := [8]Position{
-						{X: from.X, Y: from.Y + 1},
-						{X: from.X, Y: from.Y + 2},
-						{X: from.X, Y: from.Y + 3},
-						{X: from.X, Y: from.Y + 4},
-						{X: from.X, Y: from.Y + 5},
-						{X: from.X, Y: from.Y + 6},
-						{X: from.X, Y: from.Y + 7},
-					}	
-	possibleYDown := [8]Position{
-						{X: from.X, Y: from.Y - 1},
-						{X: from.X, Y: from.Y - 2},
-						{X: from.X, Y: from.Y - 3},
-						{X: from.X, Y: from.Y - 4},
-						{X: from.X, Y: from.Y - 5},
-						{X: from.X, Y: from.Y - 6},
-						{X: from.X, Y: from.Y - 7},
-					}	
-
-	valid := make(map[Position]struct{})
-
-
-	for _, position := range possibleXUp {
-		if isOnBoard(position.X, position.Y) {
-			if b.Square[position.Y][position.X] == nil{
-				valid[position] = struct{}{}
-			} else if b.Square[position.Y][position.X].Color != Color(color){
-				valid[position] = struct{}{}
-				break
-			} else {
-				break
-			}
-		}
+	rookDirections := []Position{
+		{X:1, Y:0},
+		{X:-1, Y:0},
+		{X:0, Y:1},
+		{X:0, Y:-1},
 	}
 
-	for _, position := range possibleXDown {
-		if isOnBoard(position.X, position.Y) {
-			if b.Square[position.Y][position.X] == nil {
-				valid[position] = struct{}{}
-			} else if b.Square[position.Y][position.X].Color != Color(color){
-				valid[position] = struct{}{}
-				break
-			} else {
-				break
-			}
-		}
-	}
-	for _, position := range possibleYUp {
-		if isOnBoard(position.X, position.Y) {
-			if b.Square[position.Y][position.X] == nil{
-				valid[position] = struct{}{}
-			} else if b.Square[position.Y][position.X].Color != Color(color){
-				valid[position] = struct{}{}
-				break
-			} else {
-				break
-			}
-		}
-	}
-	for _, position := range possibleYDown {
-		if isOnBoard(position.X, position.Y) {
-			if b.Square[position.Y][position.X] == nil {
-				valid[position] = struct{}{}
-			} else if b.Square[position.Y][position.X].Color != Color(color){
-				valid[position] = struct{}{}
-				break
-			} else {
-				break
-			}
-		}
-	}
+	valid := b.slidingMoves(from, color, rookDirections)
 
 	if !isOnBoard(to.X, to.Y) {
 		log.Printf("Error: coord not on board, %v", to) // Log print for now, will change to return fmt.Error later
@@ -260,6 +178,36 @@ func (b *Board) RookMove(from Position, to Position, color Color) {
 	b.Square[to.Y][to.X] = &Piece{Type: Rook, Color: Color(color)}
 
 }
+
+func (b *Board) slidingMoves(from Position, color Color, directions []Position) map[Position]struct{} {
+	valid := make(map[Position]struct{})
+
+	for _, direction := range directions {
+		for step := 1; step <= 7; step++ {
+			pos := Position{
+				X: from.X + direction.X*step,
+				Y: from.Y + direction.Y*step,
+			}
+
+			if !isOnBoard(pos.X, pos.Y) {
+				break
+			}
+
+			if isOnBoard(pos.X, pos.Y) {
+				if b.Square[pos.Y][pos.X] == nil{
+					valid[pos] = struct{}{}
+				} else if b.Square[pos.Y][pos.X].Color != Color(color){
+					valid[pos] = struct{}{}
+					break
+				} else {
+					break
+				}
+			}
+		}
+	}
+
+	return valid
+} 
 
 
 var mapToXCoord = map[string]int{
