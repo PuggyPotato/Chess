@@ -209,6 +209,31 @@ func (b *Board) slidingMoves(from Position, color Color, directions []Position) 
 	return valid
 } 
 
+func (b *Board) BishopMove(from Position, to Position, color Color) {
+	rookDirections := []Position{
+		{X:1, Y:1},
+		{X:-1, Y:-1},
+		{X:1, Y:-1},
+		{X:-1, Y:1},
+	}
+
+	valid := b.slidingMoves(from, color, rookDirections)
+
+	if !isOnBoard(to.X, to.Y) {
+		log.Printf("Error: coord not on board, %v", to) // Log print for now, will change to return fmt.Error later
+	}
+
+	if _, ok := valid[to]; !ok {
+		log.Print("Invalid Move")
+		log.Print(valid)
+		return
+	}
+
+	b.Square[from.Y][from.X] = nil
+	b.Square[to.Y][to.X] = &Piece{Type: Bishop, Color: Color(color)}
+
+}
+
 
 var mapToXCoord = map[string]int{
 	"a": 0,
@@ -225,7 +250,7 @@ func main() {
 	board := Board{
 		[8][8]*Piece{ 
 			0: {&Piece{Rook, White}, &Piece{Knight, White}, &Piece{Bishop, White}, &Piece{Queen, White}, &Piece{King, White}, &Piece{Bishop, White}, &Piece{Knight, White}, &Piece{Rook, White}},
-			1: {&Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}},
+			//1: {&Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}},
 			6: {&Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}},
 			7: {&Piece{Rook, Black}, &Piece{Knight, Black}, &Piece{Bishop, Black}, &Piece{Queen, Black}, &Piece{King, Black}, &Piece{Bishop, Black}, &Piece{Knight, Black}, &Piece{Rook, Black}},
 		},
@@ -266,7 +291,9 @@ func main() {
 		switch piece.Type {
 			case 1: // Knight
 				board.KnightMove(from, to, piece.Color)
-			case 3:
+			case 2: // Bishop
+				board.BishopMove(from, to, piece.Color)
+			case 3: // Rook
 				board.RookMove(from, to, piece.Color)
 			case 5: // King
 				board.KingMove(from, to, piece.Color)
