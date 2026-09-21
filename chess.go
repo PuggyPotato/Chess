@@ -234,6 +234,35 @@ func (b *Board) BishopMove(from Position, to Position, color Color) {
 
 }
 
+func (b *Board) QueenMove(from Position, to Position, color Color) {
+	rookDirections := []Position{
+		{X:1, Y:1},
+		{X:-1, Y:-1},
+		{X:1, Y:-1},
+		{X:-1, Y:1},
+		{X:1, Y:0},
+		{X:-1, Y:0},
+		{X:0, Y:1},
+		{X:0, Y:-1},
+	}
+
+	valid := b.slidingMoves(from, color, rookDirections)
+
+	if !isOnBoard(to.X, to.Y) {
+		log.Printf("Error: coord not on board, %v", to) // Log print for now, will change to return fmt.Error later
+	}
+
+	if _, ok := valid[to]; !ok {
+		log.Print("Invalid Move")
+		log.Print(valid)
+		return
+	}
+
+	b.Square[from.Y][from.X] = nil
+	b.Square[to.Y][to.X] = &Piece{Type: Queen, Color: Color(color)}
+
+}
+
 
 var mapToXCoord = map[string]int{
 	"a": 0,
@@ -295,6 +324,8 @@ func main() {
 				board.BishopMove(from, to, piece.Color)
 			case 3: // Rook
 				board.RookMove(from, to, piece.Color)
+			case 4: // Queen
+				board.QueenMove(from, to, piece.Color)
 			case 5: // King
 				board.KingMove(from, to, piece.Color)
 		}
