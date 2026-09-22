@@ -210,14 +210,14 @@ func (b *Board) slidingMoves(from Position, color Color, directions []Position) 
 } 
 
 func (b *Board) BishopMove(from Position, to Position, color Color) {
-	rookDirections := []Position{
+	bishopDirections := []Position{
 		{X:1, Y:1},
 		{X:-1, Y:-1},
 		{X:1, Y:-1},
 		{X:-1, Y:1},
 	}
 
-	valid := b.slidingMoves(from, color, rookDirections)
+	valid := b.slidingMoves(from, color, bishopDirections)
 
 	if !isOnBoard(to.X, to.Y) {
 		log.Printf("Error: coord not on board, %v", to) // Log print for now, will change to return fmt.Error later
@@ -235,7 +235,7 @@ func (b *Board) BishopMove(from Position, to Position, color Color) {
 }
 
 func (b *Board) QueenMove(from Position, to Position, color Color) {
-	rookDirections := []Position{
+	queenDirections := []Position{
 		{X:1, Y:1},
 		{X:-1, Y:-1},
 		{X:1, Y:-1},
@@ -246,7 +246,7 @@ func (b *Board) QueenMove(from Position, to Position, color Color) {
 		{X:0, Y:-1},
 	}
 
-	valid := b.slidingMoves(from, color, rookDirections)
+	valid := b.slidingMoves(from, color, queenDirections)
 
 	if !isOnBoard(to.X, to.Y) {
 		log.Printf("Error: coord not on board, %v", to) // Log print for now, will change to return fmt.Error later
