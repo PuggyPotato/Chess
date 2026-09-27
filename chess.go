@@ -263,6 +263,74 @@ func (b *Board) QueenMove(from Position, to Position, color Color) {
 
 }
 
+func (b *Board) PawnMove(from Position, to Position, color Color) {
+	
+	var possible []Position
+
+	switch color {
+		case 0:
+			possible = []Position{
+				{X: from.X, Y: from.Y + 1},
+			}
+			if from.Y == 1 && b.Square[from.Y + 1][from.X] == nil {
+				possible = append(possible, Position{X: from.X, Y: from.Y + 2})
+			}
+		case 1:
+			possible = []Position{
+				{X: from.X, Y: from.Y - 1},
+			}
+			if from.Y == 6 && b.Square[from.Y - 1][from.X] == nil {
+				possible = append(possible, Position{X: from.X, Y: from.Y - 2})
+			}
+	}
+
+	valid := make(map[Position]struct{})
+
+	for _, position := range possible {
+		if isOnBoard(position.X, position.Y) {
+			if b.Square[position.Y][position.X] == nil {
+				valid[position] = struct{}{}
+			}
+		}
+	}
+
+	switch color {
+		case 0:
+			possible = []Position{
+				{X: from.X + 1, Y: from.Y + 1},
+				{X: from.X - 1, Y: from.Y + 1},
+			}
+		case 1:
+			possible = []Position{
+				{X: from.X + 1, Y: from.Y - 1},
+				{X: from.X - 1, Y: from.Y - 1},
+			}
+	}
+
+	for _, position := range possible {
+		if isOnBoard(position.X, position.Y) {
+			if b.Square[position.Y][position.X] != nil && b.Square[position.Y][position.X].Color != color {
+				valid[position] = struct{}{}
+			}
+		}
+	}
+
+
+	if !isOnBoard(to.X, to.Y) {
+		log.Printf("Error: coord not on board, %v", to) // Log print for now, will change to return fmt.Error later
+	}
+
+	if _, ok := valid[to]; !ok {
+		log.Print("Invalid Move")
+		log.Print(valid)
+		return
+	}
+
+	b.Square[from.Y][from.X] = nil
+	b.Square[to.Y][to.X] = &Piece{Type: Pawn, Color: Color(color)}
+
+}
+
 
 var mapToXCoord = map[string]int{
 	"a": 0,
@@ -279,7 +347,7 @@ func main() {
 	board := Board{
 		[8][8]*Piece{ 
 			0: {&Piece{Rook, White}, &Piece{Knight, White}, &Piece{Bishop, White}, &Piece{Queen, White}, &Piece{King, White}, &Piece{Bishop, White}, &Piece{Knight, White}, &Piece{Rook, White}},
-			//1: {&Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}},
+			1: {&Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}, &Piece{Pawn, White}},
 			6: {&Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}, &Piece{Pawn, Black}},
 			7: {&Piece{Rook, Black}, &Piece{Knight, Black}, &Piece{Bishop, Black}, &Piece{Queen, Black}, &Piece{King, Black}, &Piece{Bishop, Black}, &Piece{Knight, Black}, &Piece{Rook, Black}},
 		},
@@ -318,6 +386,8 @@ func main() {
 			continue
 		}
 		switch piece.Type {
+			case 0:
+				board.PawnMove(from, to, piece.Color)
 			case 1: // Knight
 				board.KnightMove(from, to, piece.Color)
 			case 2: // Bishop
